@@ -5,7 +5,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -31,6 +34,9 @@ public class MainActivity extends AppCompatActivity {
     private Button getTracksButton;
 
     private RecyclerView recyclerView;
+
+    private String name;
+    private String singer;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,6 +72,33 @@ public class MainActivity extends AppCompatActivity {
 
         APIservice = retrofit.create(APIService.class);
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_song:
+                showSongDialog();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void showSongDialog() {
+        SongDialog dialog = new SongDialog();
+        Bundle arguments = new Bundle();
+        arguments.putString("name", name);
+        arguments.putString("singer", singer);
+        dialog.setArguments(arguments);
+
+        dialog.show(getSupportFragmentManager(), "credentialsDialog");
+    }
+
     Callback<List<Track>> TracksCallback = new Callback<List<Track>>() {
         @Override
         public void onResponse(Call<List<Track>> call, Response<List<Track>> response) {
