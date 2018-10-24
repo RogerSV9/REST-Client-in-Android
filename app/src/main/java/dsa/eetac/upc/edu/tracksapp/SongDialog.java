@@ -11,8 +11,8 @@ import android.view.View;
 import android.widget.EditText;
 
 public class SongDialog extends DialogFragment {
-    EditText usernameEditText;
-    EditText passwordEditText;
+    EditText nameEditText;
+    EditText singerEditText;
     ICredentialsDialogListener listener;
 
     public interface ICredentialsDialogListener {
@@ -30,21 +30,21 @@ public class SongDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        //View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_credentials, null);
-        //usernameEditText = (EditText) view.findViewById(R.id.username_edittext);
-        //passwordEditText = (EditText) view.findViewById(R.id.password_edittext);
+        View view = getActivity().getLayoutInflater().inflate(R.layout.song_info, null);
+        nameEditText = (EditText) view.findViewById(R.id.name_edittext);
+        singerEditText = (EditText) view.findViewById(R.id.singer_edittext);
 
-        usernameEditText.setText(getArguments().getString("username"));
-        passwordEditText.setText(getArguments().getString("password"));
+        nameEditText.setText(getArguments().getString("name"));
+        singerEditText.setText(getArguments().getString("singer"));
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
                 //.setView(view)
-                .setTitle("Credentials")
+                .setTitle("Song information")
                 .setNegativeButton("Cancel", null)
                 .setPositiveButton("Continue", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (listener != null) {
-                            listener.onDialogPositiveClick(usernameEditText.getText().toString(), passwordEditText.getText().toString());
+                            listener.onDialogPositiveClick(nameEditText.getText().toString(), singerEditText.getText().toString());
                         }
                     }
                 });
