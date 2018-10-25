@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">TracksApp</string>
+    <string name="enter_the_id_of_the_song_you_want_to_delete">Enter the id of the song you want to delete</string>
+    <string name="name">Name:</string>
+    <string name="id">Id:</string>
+    <string name="singer">Singer:</string>
 </resources>

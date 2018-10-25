@@ -6,8 +6,8 @@ public class Track {
     String title;
     String singer;
 
-    public Track(String title, String singer){
-        this.id = 0;
+    public Track(int id, String title, String singer){
+        this.id = id;
         this.title = title;
         this.singer = singer;
     }

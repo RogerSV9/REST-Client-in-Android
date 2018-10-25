@@ -5,15 +5,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -22,19 +18,19 @@ import com.google.gson.GsonBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class MainActivity extends AppCompatActivity implements SongDialog.ISongDialogListener{
+public class MainActivity extends AppCompatActivity implements AddSongDialog.IAddSongDialogListener, DeleteSongDialog.IDeleteSongDialogListener, EditSongDialog.IEditSongDialogListener{
     private APIService APIservice;
     private Button getTracksButton;
 
     private RecyclerView recyclerView;
 
+    private int id;
     private String name;
     private String singer;
 
@@ -42,29 +38,12 @@ public class MainActivity extends AppCompatActivity implements SongDialog.ISongD
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-        getTracksButton = (Button) findViewById(R.id.gettracks_button);
-
         recyclerView = (RecyclerView) findViewById(R.id.list);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
         createAPIService();
-        getTracksButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                APIservice.getTracks().enqueue(TracksCallback);
-            }
-        });
-        /*@Override
-        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            if (parent.getSelectedItem() instanceof GithubRepo) {
-                GithubRepo githubRepo = (GithubRepo) parent.getSelectedItem();
-                compositeDisposable.add(githubAPI.getIssues(githubRepo.owner, githubRepo.name)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeWith(getIssuesObserver()));
-            }
-        }*/
+        APIservice.getTracks().enqueue(TracksCallback);
+
     }
     @Override
     protected void onResume() {
@@ -92,21 +71,29 @@ public class MainActivity extends AppCompatActivity implements SongDialog.ISongD
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.menu_song:
-                showSongDialog();
+            case R.id.menu_add_song:
+                showAddSongDialog();
+                return true;
+            case R.id.menu_delete_song:
+                showDeleteSongDialog();
+                return true;
+            case R.id.menu_edit_song:
+                showEditSongDialog();
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void showSongDialog() {
-        SongDialog dialog = new SongDialog();
+    private void showAddSongDialog() {
+        AddSongDialog dialog = new AddSongDialog();
         Bundle arguments = new Bundle();
+        String ids = String.valueOf(this.id);
+        arguments.putString("id", ids);
         arguments.putString("name", name);
         arguments.putString("singer", singer);
         dialog.setArguments(arguments);
 
-        dialog.show(getSupportFragmentManager(), "SongDialog");
+        dialog.show(getSupportFragmentManager(), "AddSongDialog");
     }
 
     Callback<List<Track>> TracksCallback = new Callback<List<Track>>() {
@@ -130,10 +117,96 @@ public class MainActivity extends AppCompatActivity implements SongDialog.ISongD
         }
     };
     @Override
-    public void onDialogPositiveClick(String name, String singer) {
+    public void onDialogPositiveClick(String id, String name, String singer) {
         this.name = name;
         this.singer = singer;
-        Track track = new Track(name, singer);
-        APIservice.postSong(track);
+        this.id = id.compareTo(id);
+        sendPost(this.id, this.name, this.singer);
+        APIservice.getTracks().enqueue(TracksCallback);
+        Intent refresh = new Intent(this, MainActivity.class);
+        startActivity(refresh);
+        this.finish();
+    }
+    public void sendPost(int id, String name, String singer){
+        Track track = new Track(id, name, singer);
+        APIservice.postSong(track).enqueue(new Callback<Track>() {
+            @Override
+            public void onResponse(Call<Track> call, Response<Track> response) {
+                Toast.makeText(MainActivity.this, response.message(), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailure(Call<Track> call, Throwable t) {
+                t.printStackTrace();
+            }
+        });
+    }
+    private void showDeleteSongDialog() {
+        DeleteSongDialog dialog = new DeleteSongDialog();
+        Bundle arguments = new Bundle();
+        String ids = String.valueOf(this.id);
+        arguments.putString("id", ids);
+        dialog.setArguments(arguments);
+
+        dialog.show(getSupportFragmentManager(), "DeleteSongDialog");
+    }
+    @Override
+    public void onDialogDeletePositiveClick(String id) {
+        this.id = id.compareTo(id);
+        sendDelete(this.id);
+        APIservice.getTracks().enqueue(TracksCallback);
+        Intent refresh = new Intent(this, MainActivity.class);
+        startActivity(refresh);
+        this.finish();
+    }
+    public void sendDelete(int id){
+        APIservice.deleteTrack(id).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                Toast.makeText(MainActivity.this, Integer.toString(response.code()), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                t.printStackTrace();
+            }
+        });
+    }
+    private void showEditSongDialog() {
+        EditSongDialog dialog = new EditSongDialog();
+        Bundle arguments = new Bundle();
+        String ids = String.valueOf(this.id);
+        arguments.putString("id", ids);
+        arguments.putString("name", name);
+        arguments.putString("singer", singer);
+        dialog.setArguments(arguments);
+
+        dialog.show(getSupportFragmentManager(), "EditSongDialog");
+    }
+    @Override
+    public void onDialogEditPositiveClick(String id, String name, String singer) {
+        this.name = name;
+        this.singer = singer;
+        this.id = id.compareTo(id);
+        sendPut(this.id, this.name, this.singer);
+        APIservice.getTracks().enqueue(TracksCallback);
+        Intent refresh = new Intent(this, MainActivity.class);
+        startActivity(refresh);
+        this.finish();
+    }
+    public void sendPut(int id, String name, String singer){
+
+        Track track = new Track(id, name, singer);
+        APIservice.editTrack(track).enqueue(new Callback<Track>() {
+            @Override
+            public void onResponse(Call<Track> call, Response<Track> response) {
+                Toast.makeText(MainActivity.this, response.message(), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailure(Call<Track> call, Throwable t) {
+                t.printStackTrace();
+            }
+        });
     }
 }
