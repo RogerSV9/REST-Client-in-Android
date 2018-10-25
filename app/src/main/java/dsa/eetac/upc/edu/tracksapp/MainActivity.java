@@ -29,7 +29,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SongDialog.ISongDialogListener{
     private APIService APIservice;
     private Button getTracksButton;
 
@@ -55,6 +55,16 @@ public class MainActivity extends AppCompatActivity {
                 APIservice.getTracks().enqueue(TracksCallback);
             }
         });
+        /*@Override
+        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            if (parent.getSelectedItem() instanceof GithubRepo) {
+                GithubRepo githubRepo = (GithubRepo) parent.getSelectedItem();
+                compositeDisposable.add(githubAPI.getIssues(githubRepo.owner, githubRepo.name)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeWith(getIssuesObserver()));
+            }
+        }*/
     }
     @Override
     protected void onResume() {
@@ -96,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
         arguments.putString("singer", singer);
         dialog.setArguments(arguments);
 
-        dialog.show(getSupportFragmentManager(), "credentialsDialog");
+        dialog.show(getSupportFragmentManager(), "SongDialog");
     }
 
     Callback<List<Track>> TracksCallback = new Callback<List<Track>>() {
@@ -119,4 +129,11 @@ public class MainActivity extends AppCompatActivity {
             t.printStackTrace();
         }
     };
+    @Override
+    public void onDialogPositiveClick(String name, String singer) {
+        this.name = name;
+        this.singer = singer;
+        Track track = new Track(name, singer);
+        APIservice.postSong(track);
+    }
 }

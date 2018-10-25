@@ -13,17 +13,17 @@ import android.widget.EditText;
 public class SongDialog extends DialogFragment {
     EditText nameEditText;
     EditText singerEditText;
-    ICredentialsDialogListener listener;
+    ISongDialogListener listener;
 
-    public interface ICredentialsDialogListener {
-        void onDialogPositiveClick(String username, String password);
+    public interface ISongDialogListener {
+        void onDialogPositiveClick(String name, String singer);
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (getActivity() instanceof ICredentialsDialogListener) {
-            listener = (ICredentialsDialogListener) getActivity();
+        if (getActivity() instanceof ISongDialogListener) {
+            listener = (ISongDialogListener) getActivity();
         }
     }
 
@@ -37,7 +37,7 @@ public class SongDialog extends DialogFragment {
         nameEditText.setText(getArguments().getString("name"));
         singerEditText.setText(getArguments().getString("singer"));
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
-                //.setView(view)
+                .setView(view)
                 .setTitle("Song information")
                 .setNegativeButton("Cancel", null)
                 .setPositiveButton("Continue", new DialogInterface.OnClickListener() {
