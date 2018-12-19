@@ -188,13 +188,13 @@ public class MainActivity extends AppCompatActivity implements AddSongDialog.IAd
         this.name = name;
         this.singer = singer;
         this.id = id.compareTo(id);
-        sendPut(this.id, this.name, this.singer);
+        //sendPut(this.id, this.name, this.singer);
         APIservice.getTracks().enqueue(TracksCallback);
         Intent refresh = new Intent(this, MainActivity.class);
         startActivity(refresh);
         this.finish();
     }
-    public void sendPut(int id, String name, String singer){
+    /*public void sendPut(int id, String name, String singer){
 
         Track track = new Track(id, name, singer);
         APIservice.editTrack(track).enqueue(new Callback<Track>() {
@@ -208,5 +208,5 @@ public class MainActivity extends AppCompatActivity implements AddSongDialog.IAd
                 t.printStackTrace();
             }
         });
-    }
+    }*/
 }

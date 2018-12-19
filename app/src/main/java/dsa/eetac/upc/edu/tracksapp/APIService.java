@@ -24,7 +24,7 @@ public interface APIService {
     Call<Track> postSong(@Body Track track);
 
     @PUT("tracks")
-    Call<Track> editTrack(@Body Track track);
+    Call<Void> updateTrack(@Body Track track);
 
     @DELETE("tracks/{id}")
     Call<Void> deleteTrack(@Path("id") int id);
