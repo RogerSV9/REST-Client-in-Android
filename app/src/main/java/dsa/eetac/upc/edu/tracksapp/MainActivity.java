@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements AddSongDialog.IAd
         }
     };
     @Override
-    public void onDialogPositiveClick(String id, String name, String singer) {
+    public void onDialogAddPositiveClick(String id, String name, String singer) {
         this.name = name;
         this.singer = singer;
         this.id = id.compareTo(id);
